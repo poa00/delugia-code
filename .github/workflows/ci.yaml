@@ -105,7 +105,7 @@ jobs:
     - name: Install configparser
       run: pip3 install configparser
     - name: Extract additional powerline glyphs
-      run: fontforge -lang=ff -script "`pwd`/extract-extra-glyphs" "`pwd`" `pwd`/src/**/octicons.ttf
+      run: fontforge -lang=ff -script "`pwd`/extract-extra-glyphs" "`pwd`" `pwd`/src/glyphs/octicons/octicons.ttf
     - name: Build Powerline
       run: |
         ./do_generate 01 --powerline --mono CascadiaCodePL-Regular.ttf            DelugiaPL.ttf              "Delugia PL"
