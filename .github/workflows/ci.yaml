@@ -163,7 +163,7 @@ jobs:
         zip delugia-book.zip delugia-book/*
     - name: Check for preexisting glyphs
       run: |
-        grep 'Found existing' process*.log | grep  -vE ' Powerline(Extra)?Symbols>'
+        grep 'Skipping...' process*.log | grep  -vE ' Powerline(Extra)?Symbols>'
     - uses: actions/upload-artifact@v4
       with:
         name: Delugia Powerline
