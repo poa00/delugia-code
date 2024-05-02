@@ -31,7 +31,7 @@ jobs:
       run: |
         echo "CASCADIATAG=${{ fromJson(steps.get_latest_release.outputs.data).tag_name }}" >> $GITHUB_ENV
     - name: Check if tag exists
-      uses: mukunku/tag-exists-action@v1.2.0
+      uses: mukunku/tag-exists-action@v1.6.0
       id: check_tag
       with:
         tag: ${{ env.CASCADIATAG }}
@@ -50,7 +50,7 @@ jobs:
       CASCADIATAG_ISNOTNEW: ${{ needs.check-for-new-cascadia.outputs.tag_exists }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Decide on version
@@ -65,7 +65,7 @@ jobs:
         fi
         echo "OURVERSION=${OURVERSION}" >> $GITHUB_ENV
     - name: Download latest version of Cascadia
-      uses: robinraju/release-downloader@v1.7
+      uses: robinraju/release-downloader@v1.10
       with:
         repository: "microsoft/cascadia-code"
         tag: ${{ needs.check-for-new-cascadia.outputs.tag_name }}
@@ -91,7 +91,7 @@ jobs:
         fontforge --version
 
     - name: Get Font Patcher
-      uses: robinraju/release-downloader@v1.5
+      uses: robinraju/release-downloader@v1.10
       with:
         repository: "ryanoasis/nerd-fonts"
         latest: true
@@ -105,7 +105,7 @@ jobs:
     - name: Install configparser
       run: pip3 install configparser
     - name: Extract additional powerline glyphs
-      run: fontforge -lang=ff -script "`pwd`/extract-extra-glyphs" "`pwd`" `pwd`/src/**/octicons.ttf
+      run: fontforge -lang=ff -script "`pwd`/extract-extra-glyphs" "`pwd`" `pwd`/src/glyphs/octicons/octicons.ttf
     - name: Build Powerline
       run: |
         ./do_generate 01 --powerline --mono CascadiaCodePL-Regular.ttf            DelugiaPL.ttf              "Delugia PL"
@@ -163,24 +163,24 @@ jobs:
         zip delugia-book.zip delugia-book/*
     - name: Check for preexisting glyphs
       run: |
-        grep 'Found existing' process*.log | grep  -vE ' Powerline(Extra)?Symbols>'
-    - uses: actions/upload-artifact@v3
+        grep 'Skipping...' process*.log | grep  -vE ' Powerline(Extra)?Symbols>'
+    - uses: actions/upload-artifact@v4
       with:
         name: Delugia Powerline
         path: "delugia-powerline"
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: Delugia Mono Powerline
         path: "delugia-mono-powerline"
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: Delugia Complete
         path: "delugia-complete"
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: Delugia Mono Complete
         path: "delugia-mono-complete"
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: Delugia Book
         path: "delugia-book"
@@ -188,7 +188,7 @@ jobs:
     # Release part
     - name: Create tag
       if: ${{ github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/tags/') && needs.check-for-new-cascadia.outputs.tag_exists != 'true' }}
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       with:
         github-token: ${{ github.token }}
         script: |
@@ -214,7 +214,7 @@ jobs:
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       uses: battila7/get-version-action@v2
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: ${{ github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/') || needs.check-for-new-cascadia.outputs.tag_exists != 'true') }}
       with:
         tag_name: ${{ startsWith(github.ref, 'refs/tags/') && steps.get_tag_name.outputs.version || needs.check-for-new-cascadia.outputs.tag_name }}

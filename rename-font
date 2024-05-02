@@ -3,6 +3,7 @@
 
 import os.path
 import fontforge
+import sys, logging
 from argparse import ArgumentParser
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(sys.argv[0])) + '/bin/scripts/name_parser/')
@@ -23,7 +24,8 @@ SIL_TABLE = [('cascadia ?(code|mono)( ?pl)?', args.name), ]
 print("\nRenaming process\n    {}\n as {}\n -> {}".format(args.input, args.orig, args.output))
 
 fname = os.path.splitext(os.path.basename(args.orig))[0]
-n = FontnameParser(fname)
+logger = logging.getLogger()
+n = FontnameParser(fname, logger)
 n.add_name_substitution_table(SIL_TABLE)
 n.set_keep_regular_in_family(False)
 if not n.parse_ok:
@@ -36,7 +38,7 @@ delugia=fontforge.open(args.input)
 n.rename_font(delugia)
 
 # Other information
-delugia.appendSFNTName("English (US)", "UniqueID", "{};{}".format(args.version, n.ps_fontname()))
+delugia.appendSFNTName("English (US)", "UniqueID", "{};{}".format(args.version, n.psname()))
 delugia.appendSFNTName("English (US)", "Trademark", "")
 
 # Mix our version information in
@@ -44,7 +46,7 @@ delugia.sfntRevision = None # Auto-set (refreshed) by fontforge
 delugia.appendSFNTName("English (US)", "Version", args.version)
 delugia.version = args.version
 
-if n.ps_fontname().lower().find("mono"):
+if n.psname().lower().find("mono"):
     # For MS-Windows console apps
     panose = list(delugia.os2_panose)
     if panose[0] < 3: # https://forum.high-logic.com/postedfiles/Panose.pdf
