@@ -188,27 +188,10 @@ jobs:
     # Release part
     - name: Create tag
       if: ${{ github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/tags/') && needs.check-for-new-cascadia.outputs.tag_exists != 'true' }}
-      uses: actions/github-script@v7
+      uses: EndBug/latest-tag@latest
       with:
-        github-token: ${{ github.token }}
-        script: |
-          const tagName = "${{ needs.check-for-new-cascadia.outputs.tag_name }}";
-
-          const createdTag = await github.git.createTag({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            tag: tagName,
-            message: `Bump Delugia version to ${tagName}`,
-            object: context.sha,
-            type: "commit"
-          })
-
-          github.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/tags/${tagName}`,
-              sha: createdTag.data.sha
-          })
+        ref: ${{ needs.check-for-new-cascadia.outputs.tag_name }}
+        description: "Bump Delugia version to ${{ needs.check-for-new-cascadia.outputs.tag_name }}"
     - name: Get tag name
       id: get_tag_name
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
